@@ -14,7 +14,7 @@ struct Color {
 	int b;
 };
 
-struct Circle {
+struct Shape {
 	Point center;
 	int radius;
 	Color color;
@@ -80,12 +80,12 @@ void generateRectanglesWithRandomColors(int count, Color* pixels, int imageWidth
 	delete[] colors;
 }
 
-bool isInCircle(const Point& p, const Circle& circle) {
+bool isPointInCircle(const Point& p, const Shape& circle) {
 	return std::pow(p.x - circle.center.x, 2) + std::pow(p.y - circle.center.y, 2) <= std::pow(circle.radius, 2);
 }
 
-void generateCircles(Circle* circles, int count, const Color& backgroundColor,
-	Color* pixels, int imageWidth, int imageHeight) {
+void generateShapes(Shape* shapes, int count, const Color& backgroundColor,
+	Color* pixels, int imageWidth, int imageHeight, bool (*isPointInShape)(const Point&, const Shape&)) {
 
 	int halfy = int(imageHeight / 2);
 	int halfx = int(imageWidth / 2);
@@ -97,9 +97,9 @@ void generateCircles(Circle* circles, int count, const Color& backgroundColor,
 			Color currentColor = backgroundColor;
 			for (int i = 0; i < count; i++)
 			{
-				if (isInCircle(Point{x, y}, circles[i]))
+				if (isPointInShape(Point{x, y}, shapes[i]))
 				{
-					currentColor = circles[i].color;
+					currentColor = shapes[i].color;
 				}
 			}
 			pixels[(x + halfx) + (y + halfy) * imageWidth] = currentColor;
@@ -111,7 +111,7 @@ double getDistance(const Point& p1, const Point& p2) {
 	return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
 }
 
-void fillWithRandomCircles(Circle* circles, int count, int imageWidth, int imageHeight) {
+void fillWithRandomShapes(Shape* shapes, int count, int imageWidth, int imageHeight) {
 	// a hacky way to generate pseudo random circles
 
 	int halfy = int(imageHeight / 2);
@@ -124,22 +124,22 @@ void fillWithRandomCircles(Circle* circles, int count, int imageWidth, int image
 	int i = 0;
 	while (i < count) {
 		Point p = Point{random(-halfx, halfx), random(-halfy, halfy)};
-		int radius = random(2*epsilon, halfy);
+		int radius = random(2*epsilon, halfy/2);
 		int c = random(10, 240);
 		Color color = Color{c, random(10, 240), c};
-		Circle newCircle = Circle{p, radius, color};
+		Shape newShape = Shape{p, radius, color};
 
 		bool isOverlapped = false;
 
 		for (int j = 0; j < i; j++) {
-			if(getDistance(circles[j].center, newCircle.center) < circles[j].radius + newCircle.radius - epsilon) {
+			if(getDistance(shapes[j].center, newShape.center) < shapes[j].radius + newShape.radius - epsilon) {
 				isOverlapped = true;
 				break;
 			}
 		}
 
 		if(!isOverlapped) {
-			circles[i] = newCircle;
+			shapes[i] = newShape;
 			i++;
 		}
 
@@ -148,6 +148,14 @@ void fillWithRandomCircles(Circle* circles, int count, int imageWidth, int image
 			break;
 		}
 	}
+}
+
+bool isPointInHeart(const Point& p, const Shape& heart) {
+	//scale as the equation is for range [0, 1]
+	double scale = heart.radius;
+	double xx = (p.x - heart.center.x) / scale;
+	double yy = (p.y - heart.center.y) / scale;
+	return (-(std::pow((std::pow(xx, 2) + std::pow(yy, 2) - 1), 3) + std::pow(xx, 2) * std::pow(yy, 3)) >= 0);
 }
 
 int main(void) {
@@ -170,17 +178,22 @@ int main(void) {
 
 	Color backgroundColor = Color{159, 181, 163};
 
-	Circle circle = Circle{Point{0, 0}, 500, Color{124, 145, 143}};
-	Circle oneCircleArray[1] = {circle};
-	generateCircles(oneCircleArray, 1, backgroundColor, pixels, imageWidth, imageHeight);
+	Shape circle = Shape{Point{0, 0}, 500, Color{124, 145, 143}};
+	Shape oneCircleArray[1] = {circle};
+	generateShapes(oneCircleArray, 1, backgroundColor, pixels, imageWidth, imageHeight, isPointInCircle);
 	generatePPM("output/circle.ppm", pixels, imageWidth, imageHeight, maxColorComponent);
 
 	int count = 20;
-	Circle *circles = new Circle[count];
-	fillWithRandomCircles(circles, count, imageWidth, imageHeight);
-	generateCircles(circles, count, backgroundColor, pixels, imageWidth, imageHeight);
+	Shape *shapes = new Shape[count];
+	fillWithRandomShapes(shapes, count, imageWidth, imageHeight);
+	
+	generateShapes(shapes, count, backgroundColor, pixels, imageWidth, imageHeight, isPointInCircle);
 	generatePPM("output/circles.ppm", pixels, imageWidth, imageHeight, maxColorComponent);
-	delete[] circles;
+	
+	generateShapes(shapes, count, backgroundColor, pixels, imageWidth, imageHeight, isPointInHeart);
+	generatePPM("output/hearts.ppm", pixels, imageWidth, imageHeight, maxColorComponent);
+
+	delete[] shapes;
 
 	delete[] pixels;
 }
