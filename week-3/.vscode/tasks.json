@@ -1,0 +1,42 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "create build folder",
+            "type": "shell",
+            "windows": {
+                "command": "cmd",
+                "args": [
+                    "/C",
+                    "if not exist ${workspaceFolder}\\build mkdir ${workspaceFolder}\\build"
+                ]
+            }
+        },
+        {
+            "label": "msvc build",
+            "type": "shell",
+            "command": "cl.exe",
+            "args": [
+                "/Zi",
+                "/EHsc",
+                "/Fe:",
+                ".\\build\\main.exe",
+                "/Fd:",
+                "${workspaceFolder}\\build\\vc140.pdb",
+                "/Fo.\\build\\",
+                "${workspaceFolder}\\*.cpp",
+                "/I",
+                "${workspaceFolder}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile",
+			"dependsOn": "create build folder"
+        }
+    ]
+}
