@@ -17,6 +17,7 @@
             "type": "shell",
             "command": "cl.exe",
             "args": [
+                "/std:c++17",
                 "/Zi",
                 "/EHsc",
                 "/Fe:",
