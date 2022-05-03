@@ -12,7 +12,6 @@ set(HEADERS
 )
 
 set(SOURCES
-    ${PROJECT_SOURCE_DIR}/src/crtray.cpp
     ${PROJECT_SOURCE_DIR}/src/crtvector.cpp)
 
 add_subdirectory(app)

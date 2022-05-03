@@ -19,11 +19,11 @@ public:
     void translate(const CRTVector &moveDir);
 
     // truck - moving the camera left and right
-    void truck(int x);
+    void truck(float x);
     // pedestal - moving the camera up and down
-    void pedestal(int y);
+    void pedestal(float y);
     // dolly - moving the camera forwards and backwards / 'in and out'
-    void dolly(int z);
+    void dolly(float z);
 
     void rotate(const CRTMatrix &matrix);
     

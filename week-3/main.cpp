@@ -51,8 +51,12 @@ void generatePPM(std::string filename, Color* pixels,
 	ppmFileStream.close();
 }
 
-void calculateColorsAtPixelsBasedOnRayDir(Color* pixels, int width, int height, Color (*calculateColorAtPixel)(int, int, int, int)) {
+void calculateColorsAtPixelsBasedOnRayDir(std::string filename,
+	int width, int height, int maxColorComponent,
+	Color (*calculateColorAtPixel)(int, int, int, int)) {
 	
+	Color* pixels = new Color[width * height];
+
 	for (int y = 0; y < height; ++y) {
 
 		for (int x = 0; x < width; ++x) {
@@ -62,6 +66,9 @@ void calculateColorsAtPixelsBasedOnRayDir(Color* pixels, int width, int height, 
 			pixels[x + y * width] = c;
 		}
 	}
+
+	generatePPM(filename, pixels, width, height, maxColorComponent);
+	delete[] pixels;
 }
 
 Point getRasterCenterPoint(int x, int y, int width, int height) {
@@ -136,13 +143,12 @@ Color calculateColorWithNormalizedRayDir(int x, int y, int width, int height) {
 		clamp(abs(ray.direction.Z()) * 255)};
 }
 
-/*
 Color calculateColorWithNormalizedRayDir2(int x, int y, int width, int height) {
 	Ray ray = getRayWithNormalizedDir(x, y, width, height);
 	return Color{int(lerp(0, 0.5, abs(ray.direction.X()))*255), 
 		int(lerp(0.5, 1, abs(ray.direction.Y()))*255), 
 		int(lerp(0, 1, abs(ray.direction.Z()))*255)};
-}*/
+}
 
 int main(void) {
 
@@ -150,28 +156,24 @@ int main(void) {
 	const int imageHeight = 1080;
 	const int maxColorComponent = 255;
 
-	Color* pixels = new Color[imageWidth * imageHeight];
+	calculateColorsAtPixelsBasedOnRayDir("output/1.RasterSpace.ppm", 
+		imageWidth, imageHeight, maxColorComponent, caclulateRasterColor);
+	
+	calculateColorsAtPixelsBasedOnRayDir("output/2.NDCSpace.ppm", 
+		imageWidth, imageHeight, maxColorComponent, calculateNDCColor);
 
-	calculateColorsAtPixelsBasedOnRayDir(pixels, imageWidth, imageHeight, caclulateRasterColor);
-	generatePPM("output/1.RasterSpace.ppm", pixels, imageWidth, imageHeight, maxColorComponent);
+	calculateColorsAtPixelsBasedOnRayDir("output/3.ScreenSpace.ppm", 
+		imageWidth, imageHeight, maxColorComponent, calculateScreenColor);
 
-	calculateColorsAtPixelsBasedOnRayDir(pixels, imageWidth, imageHeight, calculateNDCColor);
-	generatePPM("output/2.NDCSpace.ppm", pixels, imageWidth, imageHeight, maxColorComponent);
+	calculateColorsAtPixelsBasedOnRayDir("output/4.ScreenSpaceWithAspectRatio.ppm", 
+		imageWidth, imageHeight, maxColorComponent, calculateScreenColorWithAspectRatio);
 
-	calculateColorsAtPixelsBasedOnRayDir(pixels, imageWidth, imageHeight, calculateScreenColor);
-	generatePPM("output/3.ScreenSpace.ppm", pixels, imageWidth, imageHeight, maxColorComponent);
+	calculateColorsAtPixelsBasedOnRayDir("output/5.ScreenSpaceWithRayDir.ppm",
+		imageWidth, imageHeight, maxColorComponent, calculateColorWithRayDir);
 
-	calculateColorsAtPixelsBasedOnRayDir(pixels, imageWidth, imageHeight, calculateScreenColorWithAspectRatio);
-	generatePPM("output/4.ScreenSpaceWithAspectRatio.ppm", pixels, imageWidth, imageHeight, maxColorComponent);
+	calculateColorsAtPixelsBasedOnRayDir("output/6.ScreenSpaceWithNormalizedRayDir.ppm", 
+		imageWidth, imageHeight, maxColorComponent, calculateColorWithNormalizedRayDir);
 
-	calculateColorsAtPixelsBasedOnRayDir(pixels, imageWidth, imageHeight, calculateColorWithRayDir);
-	generatePPM("output/5.ScreenSpaceWithRayDir.ppm", pixels, imageWidth, imageHeight, maxColorComponent);
-
-	calculateColorsAtPixelsBasedOnRayDir(pixels, imageWidth, imageHeight, calculateColorWithNormalizedRayDir);
-	generatePPM("output/6.ScreenSpaceWithNormalizedRayDir.ppm", pixels, imageWidth, imageHeight, maxColorComponent);
-
-	//calculateColorsAtPixelsBasedOnRayDir(pixels, imageWidth, imageHeight, calculateColorWithNormalizedRayDir2);
-	//generatePPM("output/7.ScreenSpaceWithNormalizedRayDir.ppm", pixels, imageWidth, imageHeight, maxColorComponent);
-
-	delete[] pixels;
+	calculateColorsAtPixelsBasedOnRayDir("output/7.ScreenSpaceWithNormalizedRayDir.ppm",
+		imageWidth, imageHeight, maxColorComponent, calculateColorWithNormalizedRayDir2);
 }

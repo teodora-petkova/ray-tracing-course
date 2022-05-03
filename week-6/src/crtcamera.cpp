@@ -15,17 +15,17 @@ void CRTCamera::translate(const CRTVector& moveDir)
     this->position = this->position + moveDirInWorldSpace;
 }
 
-void CRTCamera::dolly(int z)
+void CRTCamera::dolly(float z)
 {
     translate(CRTVector(0, 0, z));
 }
 
-void CRTCamera::truck(int x) 
+void CRTCamera::truck(float x) 
 {
     translate(CRTVector(x, 0, 0));
 }
 
-void CRTCamera::pedestal(int y) 
+void CRTCamera::pedestal(float y) 
 {
     translate(CRTVector(0, y, 0));
 }

@@ -20,7 +20,6 @@ enable_testing()
 add_executable(${PROJECT_NAME}
   crtvector_tests.cpp
   crttriangle_tests.cpp
-  crtray_tests.cpp
   ${HEADERS}
   ${SOURCES}
 )
