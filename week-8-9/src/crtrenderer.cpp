@@ -7,6 +7,11 @@ inline bool isCloseToZero(float num)
 	return std::fabs(num) < EPSILON;
 }
 
+int clamp(float f){
+	int i = int(f);
+	return std::min(std::max(0, i), 255);
+}
+
 CRTRay getRayAtPixel(int x, int y, int width, int height, const CRTCamera &camera) {
     
 	// Assumptions:
@@ -70,31 +75,32 @@ CRTIntersectionInfo traceRay(const CRTRay& ray, std::vector<CRTMesh> meshes)
 }
 
 CRTColor computeColor(const CRTVector &intersectionPoint,
-	const CRTTriangle &triangle, const CRTCamera &camera,
-	std::vector<CRTMesh> meshes, std::vector<CRTLight> lights,
-	CRTColor albedo)
+	const CRTIntersectionInfo &intersection, const CRTScene& scene)
 {
 	float shadowBias = EPSILON;
 	CRTColor finalColor = CRTColor(0, 0, 0);
-	
-	for(auto& light : lights)
+	CRTColor albedo = scene.getSettings().globalAlbedo;
+
+	for(auto& light : scene.getLights())
 	{
 		CRTVector vectorFromIntersectionToLight = light.getPosition() - intersectionPoint;
 		CRTVector lightDir = vectorFromIntersectionToLight.normalize();
+
+		CRTVector overPoint = intersectionPoint + intersection.hitTriangle.getNormal() * shadowBias;
+		CRTRay shadowRay = CRTRay{overPoint, lightDir};
 		
-		CRTRay shadowRay = CRTRay{intersectionPoint + triangle.getNormal() * shadowBias, lightDir};
-		
-		auto intersection = traceRay(shadowRay, meshes);
+		auto shadowRayIntersection = traceRay(shadowRay, scene.getGeometryObjects());
 
 		CRTColor lightContribution = CRTColor(0, 0, 0);
-		if(!intersection.isTriangleHit)
+		if(!shadowRayIntersection.isTriangleHit)
 		{
-			float cosLaw = std::fmax(0, lightDir.dot(triangle.getNormal()));
+		
+			float cosLaw = std::fmax(0, lightDir.dot(intersection.hitTriangle.getNormal()));
 
 			float sphereRadius = vectorFromIntersectionToLight.length();
 			float sphereArea = 4 * M_PI * sphereRadius * sphereRadius;
 
-			lightContribution = CRTColor(albedo * cosLaw * light.getIntensity() / sphereArea);
+			lightContribution = CRTColor(albedo * (light.getIntensity() / sphereArea) * cosLaw);
 		}
 
 		finalColor = finalColor + lightContribution;
@@ -102,51 +108,76 @@ CRTColor computeColor(const CRTVector &intersectionPoint,
 	return finalColor;
 }
 
-CRTColor getColorAtRayIntersection(const CRTRay &ray, const CRTCamera &camera,
-	std::vector<CRTMesh> meshes, std::vector<CRTLight> lights,
-	CRTColor backgroundColor, CRTColor globalAlbedo)
+CRTColor getColorAtRayIntersection(const CRTRay &ray, const CRTScene &scene)
 {
-	CRTIntersectionInfo intersection = traceRay(ray, meshes);
+	CRTIntersectionInfo intersection = traceRay(ray, scene.getGeometryObjects());
 
-	CRTColor color = backgroundColor;
+	CRTColor color = scene.getSettings().backgroundColor;
 	if(intersection.isTriangleHit)
 	{
 		CRTVector intersectionPoint = ray.origin + ray.direction * intersection.minDistance;
-		color = computeColor(intersectionPoint, intersection.hitTriangle,
-			camera, meshes, lights, globalAlbedo);
+		color = computeColor(intersectionPoint, intersection, scene);
 	}
 	return color;
 }
 
-void CRTRenderer::RenderImage(std::string filename, const CRTScene& scene)
-{	
+void renderPPMImage(std::string filename, const CRTCanvas& canvas)
+{
 	const int maxColorComponent = 255;
-
-	int imageWidth = scene.getSettings().imageSettings.width;
-	int imageHeight = scene.getSettings().imageSettings.height;
 
 	std::ofstream ppmFileStream(filename, std::ios::out | std::ios::binary | std::ios::trunc);
 	if (ppmFileStream) 
 	{
 		ppmFileStream << "P3\n";
-		ppmFileStream << imageWidth << " " << imageHeight << "\n";
+		ppmFileStream << canvas.getWidth() << " " << canvas.getHeight() << "\n";
 		ppmFileStream << maxColorComponent << "\n";
 
-		for (int rowIdx = 0; rowIdx < imageHeight; ++rowIdx)
+		for (int colIdx = 0; colIdx < canvas.getHeight(); ++colIdx)
 		{
-			for (int colIdx = 0; colIdx < imageWidth; ++colIdx)
+			for (int rowIdx = 0; rowIdx < canvas.getWidth(); ++rowIdx)
 			{
-				CRTRay ray = getRayAtPixel(colIdx, rowIdx, imageWidth, imageHeight, 
-					scene.getCamera());
-				CRTColor c = getColorAtRayIntersection(ray, 
-					scene.getCamera(), scene.getGeometryObjects(), 
-					scene.getLights(), scene.getSettings().backgroundColor,
-					scene.getSettings().globalAlbedo);
+				CRTColor c = canvas.getPixel(rowIdx, colIdx);
 
-				ppmFileStream << int(c.R()*255) << " " << int(c.G()*255) << " " << int(c.B()*255) << "\t";
+				ppmFileStream << clamp(c.R()*255) << " " << clamp(c.G()*255) << " " << clamp(c.B()*255) << "\t";
 			}
 			ppmFileStream << "\n";
 		}
 		ppmFileStream.close();
 	}
+}
+
+void renderPixelChunks(int heightStart, int heightEnd, const CRTScene& scene, CRTCanvas* canvas)
+{
+	int width = scene.getSettings().imageSettings.width;
+	int height = scene.getSettings().imageSettings.height;
+
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = heightStart; y < heightEnd; y++)
+		{
+			CRTRay ray = getRayAtPixel(x, y, width, height, scene.getCamera());
+			CRTColor color = getColorAtRayIntersection(ray, scene);
+			canvas->setPixel(x, y, color);
+		}
+	}
+}
+
+void CRTRenderer::RenderImage(std::string filename, const CRTScene& scene)
+{
+	int width = scene.getSettings().imageSettings.width;
+	int height = scene.getSettings().imageSettings.height;
+
+	CRTCanvas canvas = CRTCanvas(width, height);
+
+	int numThreads = std::thread::hardware_concurrency() - 4;
+
+	thread_pool pool(numThreads);
+
+	pool.parallelize_loop(0, height,
+						  [&scene, &canvas](const uint32_t &heightStart, const uint32_t &heightEnd)
+						  {
+                              renderPixelChunks(heightStart, heightEnd, scene, &canvas);
+						  });
+
+	renderPPMImage(filename, canvas);
 }

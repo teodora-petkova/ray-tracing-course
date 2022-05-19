@@ -1,0 +1,13 @@
+Rendering scene: D:\Repositories\Git-mine\ray-tracing-course\week-8-9\scenes\week-8\scene0.crtscene.
+Rendering of the PPM image 13813 ms.
+Elapsed time for rendering 'scene0' in seconds: 51.168 sec
+Rendering scene: D:\Repositories\Git-mine\ray-tracing-course\week-8-9\scenes\week-8\scene1.crtscene.
+Rendering of the PPM image 15319 ms.
+Elapsed time for rendering 'scene1' in seconds: 138.494 sec
+Rendering scene: D:\Repositories\Git-mine\ray-tracing-course\week-8-9\scenes\week-8\scene2.crtscene.
+Rendering of the PPM image 14027 ms.
+Elapsed time for rendering 'scene2' in seconds: 177.032 sec
+Rendering scene: D:\Repositories\Git-mine\ray-tracing-course\week-8-9\scenes\week-8\scene3.crtscene.
+Rendering of the PPM image 13754 ms.
+Elapsed time for rendering 'scene3' in seconds: 2559.7 sec
+Press any key to continue . . .

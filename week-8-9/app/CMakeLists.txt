@@ -9,5 +9,6 @@ add_executable(${PROJECT_NAME}
 )
 
 find_package(rapidjson)
-
 include_directories(${FETCHCONTENT_BASE_DIR}/rapidjson-src/include)
+
+include_directories(${FETCHCONTENT_BASE_DIR}/threadpool-src/)

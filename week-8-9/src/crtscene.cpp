@@ -110,8 +110,10 @@ void CRTScene:: parseSceneFile(const std::string &sceneFileName)
         }
     
         const Value &albedoVal = settingsVal.FindMember(crtSceneGlobalAlbedo)->value;
-        assert(!albedoVal.IsNull() && albedoVal.IsArray());
-        settings.globalAlbedo = CRTColor(loadVector(albedoVal.GetArray()));
+        if(!albedoVal.IsNull() && albedoVal.IsArray())
+        {
+            settings.globalAlbedo = CRTColor(loadVector(albedoVal.GetArray()));
+        }
     }
 
     // camera rotation matrix and position

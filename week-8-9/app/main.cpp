@@ -1,16 +1,30 @@
 #include <iostream>
-#include <sstream>
 #include <stdio.h>
 #include <stdlib.h> // srand, rand
 #include <time.h> // time 
 
 #include "..\include\crtrenderer.h"
 
-std::string sstr(int i)
+
+void raytrace(const char* sceneFilepath)
 {
-	return static_cast<std::ostringstream &>(
-			(std::ostringstream() << std::dec << i))
-		.str();
+	for (int i = 0; i <= 3; i++)
+	{
+		clock_t begin = clock();
+
+		std::string filepath = sceneFilepath + std::to_string(i) + ".crtscene";
+		std::cout << "Rendering scene: " << filepath << ".\n";
+
+		CRTScene scene = CRTScene();
+		scene.parseSceneFile(filepath);
+		
+		CRTRenderer::RenderImage("scene" + std::to_string(i) + ".ppm", scene);
+
+		clock_t end = clock();
+		
+		float elapsed_secs = float(end - begin) / CLOCKS_PER_SEC;
+		std::cout << "Elapsed time for rendering 'scene" + std::to_string(i) +"' in seconds: " << elapsed_secs << " sec\n";
+	}
 }
 
 int main(int argc, char** argv)
@@ -18,19 +32,6 @@ int main(int argc, char** argv)
 	srand(42);
 
 	assert(argc == 2);
-
-	for (int i = 0; i <= 2; i++)
-	{
-		clock_t begin = clock();
-
-		CRTScene scene = CRTScene();
-		scene.parseSceneFile(argv[1] + sstr(i) +".crtscene");
-		
-		CRTRenderer::RenderImage("scene" + sstr(i) + ".ppm", scene);
-
-		clock_t end = clock();
-		
-		float elapsed_secs = float(end - begin) / CLOCKS_PER_SEC;
-		std::cout << "Elapsed time for rendering 'scene" + sstr(i) +"' in seconds: " << elapsed_secs << " sec\n";
-	}
+	
+	raytrace(argv[1]);
 }
