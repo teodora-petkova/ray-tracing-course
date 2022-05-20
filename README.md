@@ -2,7 +2,7 @@
 A repository containing my homeworks and other experiments throughout the ray tracing course.
 
 
-## Week-2
+#### Week 2
 <details>
   <summary>Generated simple shapes - rectangles, circles, hearts </summary>
   
@@ -15,7 +15,7 @@ A repository containing my homeworks and other experiments throughout the ray tr
    ![Hearts](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-2/samples/hearts.jpg)
 </details>
 
-## Week-3
+#### Week 3
 
 <details>
   <summary>Generated images for the different step of generating a ray through a given pixel</summary>
@@ -40,7 +40,7 @@ A repository containing my homeworks and other experiments throughout the ray tr
   
 </details>
 
-## Week-4-5
+#### Week 4-5
 <details>
   <summary>Generated triangles and simple shapes with them - pyramid, diamond </summary>
 
@@ -55,7 +55,7 @@ A repository containing my homeworks and other experiments throughout the ray tr
   
 </details>
 
-## Week 6
+#### Week 6
 <details>
   <summary>Generated images for the different movements of the camera - translating and rotating around the objects </summary>
   
@@ -64,5 +64,68 @@ A repository containing my homeworks and other experiments throughout the ray tr
   
   * a diamond
    ![Diamond](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-6/samples/diamond.gif)
+  
+</details>
+
+#### Week 7
+<details>
+  <summary>Generated images from scene json files with colorful random colors</summary>
+  
+  * scene 0
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-7/samples/scene0.jpg)
+  
+  * scene 1
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-7/samples/scene1.jpg)
+
+  * scene 2
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-7/samples/scene2.jpg)
+
+  * scene 3
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-7/samples/scene3.jpg)
+  
+  * scene 4
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-7/samples/scene4.jpg)
+  
+</details>
+
+#### Week 8
+<details>
+  <summary>Generated images with lights and shading </summary>
+  
+  * scene 0
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-8-9/samples/week-8/scene0.jpg)
+  
+  * scene 1
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-8-9/samples/week-8/scene1.jpg)
+
+  * scene 2
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-8-9/samples/week-8/scene2.jpg)
+
+  * scene 3
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-8-9/samples/week-8/scene3.jpg)
+  
+</details>
+
+#### Week 9
+<details>
+  <summary>Generated images with smooth shading and reflections </summary>
+  
+  * scene 0
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-8-9/samples/week-9/scene0.jpg)
+  
+  * scene 1
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-8-9/samples/week-9/scene1.jpg)
+
+  * scene 2
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-8-9/samples/week-9/scene2.jpg)
+
+  * scene 3
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-8-9/samples/week-9/scene3.jpg)
+
+  * scene 4
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-8-9/samples/week-9/scene4.jpg)
+
+  * scene 5
+   ![](https://github.com/teodora-petkova/ray-tracing-course/blob/master/week-8-9/samples/week-9/scene5.jpg)
   
 </details>
