@@ -5,10 +5,9 @@
 
 #include "..\include\crtrenderer.h"
 
-
 void raytrace(const char* sceneFilepath)
 {
-	for (int i = 0; i <= 3; i++)
+	for (int i = 0; i <= 5; i++)
 	{
 		clock_t begin = clock();
 

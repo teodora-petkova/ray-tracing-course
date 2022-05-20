@@ -9,7 +9,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/app/Debug/LightRT_app.exe",
-            "args": ["D:\\Repositories\\Git-mine\\ray-tracing-course\\week-8-9\\scenes\\week-8\\scene"],
+            "args": ["${workspaceFolder}/scenes/week-9/scene"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

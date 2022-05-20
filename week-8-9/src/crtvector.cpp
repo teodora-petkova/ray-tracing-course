@@ -25,6 +25,20 @@ CRTVector  CRTVector::operator-(const CRTVector &other) const
                      this->z - other.z);
 }
 
+CRTVector CRTVector::operator*(const CRTVector &other) const 
+{
+    return CRTVector(this->x * other.x,
+                     this->y * other.y,
+                     this->z * other.z);
+}
+
+void CRTVector::operator+=(const CRTVector &other) 
+{
+    this->x += other.x;
+    this->y += other.y;
+    this->z += other.z;
+}
+
 CRTVector CRTVector::operator/(const float f) const
 {
     return CRTVector(this->x / f,
@@ -49,6 +63,11 @@ CRTVector CRTVector::cross(const CRTVector &other) const
 float CRTVector::dot(const CRTVector &other) const
 {
     return this->x * other.x + this->y * other.y + this->z * other.z;
+}
+
+CRTVector CRTVector::reflect(const CRTVector &normal) const
+{
+    return (*this) - normal * 2 * this->dot(normal);
 }
 
 bool CRTVector::operator==(const CRTVector &other) const

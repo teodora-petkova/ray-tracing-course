@@ -41,6 +41,9 @@ public:
 
     CRTVector operator+(const CRTVector &other) const;
     CRTVector operator-(const CRTVector &other) const;
+    CRTVector operator*(const CRTVector &other) const;
+    void operator+=(const CRTVector &other);
+    
     CRTVector operator*(const float f) const;
     CRTVector operator/(const float f) const;
 
@@ -51,6 +54,8 @@ public:
     float area(const CRTVector &other) const;
 
     bool operator==(const CRTVector &other) const;
+
+    CRTVector reflect(const CRTVector &normal) const;
 
     friend std::ostream &operator<<(std::ostream &os, const CRTVector &v);
 protected:

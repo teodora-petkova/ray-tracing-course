@@ -1,6 +1,7 @@
 #include "../include/crtrenderer.h"
 
 constexpr float EPSILON = 0.0001f;
+constexpr int REFLECTION_DEPTH = 5;
 
 inline bool isCloseToZero(float num)
 {
@@ -9,7 +10,7 @@ inline bool isCloseToZero(float num)
 
 int clamp(float f){
 	int i = int(f);
-	return std::min(std::max(0, i), 255);
+	return std::min(std::abs(i), 255);
 }
 
 CRTRay getRayAtPixel(int x, int y, int width, int height, const CRTCamera &camera) {
@@ -43,6 +44,8 @@ CRTIntersectionInfo traceRay(const CRTRay& ray, std::vector<CRTMesh> meshes)
 	bool isTriangleHit = false;
 	float minDistance = FLT_MAX;
 	CRTTriangle hitTriangle = CRTTriangle();
+	CRTVector hitNormal = CRTVector();
+	int materialIndex = 0;
 
 	for(CRTMesh& mesh : meshes)
 	{
@@ -64,29 +67,42 @@ CRTIntersectionInfo traceRay(const CRTRay& ray, std::vector<CRTMesh> meshes)
 					t < minDistance)
         	    {
 					isTriangleHit = true;
-					hitTriangle = triangle;
 					minDistance = t;
+					hitTriangle = triangle;
+					hitNormal = triangle.getNormalAt(intersectionPoint);
+					materialIndex = mesh.getMaterialIndex();
 				}
 	    	}
 		}
 	}
 
-	return CRTIntersectionInfo{isTriangleHit, minDistance, hitTriangle};
+	return CRTIntersectionInfo{isTriangleHit, minDistance, hitTriangle, hitNormal, materialIndex};
 }
 
-CRTColor computeColor(const CRTVector &intersectionPoint,
+CRTVector getNormal(const CRTIntersectionInfo &intersection, const CRTMaterial &material)
+{
+	CRTVector normal = intersection.hitTriangle.getNormal();
+	if(material.isSmooth())
+	{
+		normal = intersection.hitNormal;
+	}
+	return normal;
+}
+
+CRTColor getColorAtRayIntersection(const CRTVector &intersectionPoint,
 	const CRTIntersectionInfo &intersection, const CRTScene& scene)
 {
-	float shadowBias = EPSILON;
 	CRTColor finalColor = CRTColor(0, 0, 0);
-	CRTColor albedo = scene.getSettings().globalAlbedo;
+	CRTMaterial material = scene.getMaterial(intersection.materialIndex);
+
+	CRTVector normal = getNormal(intersection, material);
 
 	for(auto& light : scene.getLights())
 	{
 		CRTVector vectorFromIntersectionToLight = light.getPosition() - intersectionPoint;
 		CRTVector lightDir = vectorFromIntersectionToLight.normalize();
 
-		CRTVector overPoint = intersectionPoint + intersection.hitTriangle.getNormal() * shadowBias;
+		CRTVector overPoint = intersectionPoint + normal * EPSILON;
 		CRTRay shadowRay = CRTRay{overPoint, lightDir};
 		
 		auto shadowRayIntersection = traceRay(shadowRay, scene.getGeometryObjects());
@@ -94,21 +110,20 @@ CRTColor computeColor(const CRTVector &intersectionPoint,
 		CRTColor lightContribution = CRTColor(0, 0, 0);
 		if(!shadowRayIntersection.isTriangleHit)
 		{
-		
-			float cosLaw = std::fmax(0, lightDir.dot(intersection.hitTriangle.getNormal()));
+			float cosLaw = std::fmax(0, lightDir.dot(normal));
 
 			float sphereRadius = vectorFromIntersectionToLight.length();
 			float sphereArea = 4 * M_PI * sphereRadius * sphereRadius;
 
-			lightContribution = CRTColor(albedo * (light.getIntensity() / sphereArea) * cosLaw);
+			lightContribution = CRTColor(material.getAlbedo() * (light.getIntensity() / sphereArea) * cosLaw);
 		}
 
-		finalColor = finalColor + lightContribution;
+		finalColor += lightContribution;
 	}
 	return finalColor;
 }
 
-CRTColor getColorAtRayIntersection(const CRTRay &ray, const CRTScene &scene)
+CRTColor computeColor(const CRTRay &ray, const CRTScene &scene, int depth)
 {
 	CRTIntersectionInfo intersection = traceRay(ray, scene.getGeometryObjects());
 
@@ -116,7 +131,26 @@ CRTColor getColorAtRayIntersection(const CRTRay &ray, const CRTScene &scene)
 	if(intersection.isTriangleHit)
 	{
 		CRTVector intersectionPoint = ray.origin + ray.direction * intersection.minDistance;
-		color = computeColor(intersectionPoint, intersection, scene);
+		if(scene.getLights().size() > 0)
+		{
+			CRTMaterial material = scene.getMaterial(intersection.materialIndex);
+			if(material.getType() == CRTMaterialType::reflective 
+				&& depth >= 0)
+			{
+				CRTVector normal = getNormal(intersection, material);
+				CRTRay reflectionRay = CRTRay(intersectionPoint + normal * EPSILON, ray.direction.reflect(normal));
+				
+				color = computeColor(reflectionRay, scene, depth - 1) * material.getAlbedo();
+			}
+			else if(material.getType() == CRTMaterialType::diffuse)
+			{
+				color = getColorAtRayIntersection(intersectionPoint, intersection, scene);
+			}
+		}
+		else
+		{
+			color = CRTColor(intersection.hitTriangle.getBarycentricCoordinates(intersectionPoint));
+		}
 	}
 	return color;
 }
@@ -156,7 +190,7 @@ void renderPixelChunks(int heightStart, int heightEnd, const CRTScene& scene, CR
 		for (int y = heightStart; y < heightEnd; y++)
 		{
 			CRTRay ray = getRayAtPixel(x, y, width, height, scene.getCamera());
-			CRTColor color = getColorAtRayIntersection(ray, scene);
+			CRTColor color = computeColor(ray, scene, REFLECTION_DEPTH);
 			canvas->setPixel(x, y, color);
 		}
 	}
@@ -169,7 +203,7 @@ void CRTRenderer::RenderImage(std::string filename, const CRTScene& scene)
 
 	CRTCanvas canvas = CRTCanvas(width, height);
 
-	int numThreads = std::thread::hardware_concurrency() - 4;
+	int numThreads = std::thread::hardware_concurrency();
 
 	thread_pool pool(numThreads);
 

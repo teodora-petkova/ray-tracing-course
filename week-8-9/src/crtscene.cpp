@@ -135,6 +135,13 @@ void CRTScene:: parseSceneFile(const std::string &sceneFileName)
     {
         for (auto& objectVal : objectsVal.GetArray())
         {
+            int materialIndex = 0;
+            const Value &materialIndexVal = objectVal.FindMember(crtMaterialIndex)->value;
+            if(!materialIndexVal.IsNull() && materialIndexVal.IsInt())
+            {
+                materialIndex = materialIndexVal.GetInt();
+            }
+
             const Value &verticesVal = objectVal.FindMember(crtVertices)->value;
             assert(!verticesVal.IsNull() && verticesVal.IsArray());
             auto vertices = loadVectors(verticesVal.GetArray());
@@ -143,7 +150,7 @@ void CRTScene:: parseSceneFile(const std::string &sceneFileName)
             assert(!trianglesVal.IsNull() && trianglesVal.IsArray());
             auto trianglesVertices = loadIndices(trianglesVal.GetArray());
 
-            auto geometryObject = CRTMesh(vertices, trianglesVertices);
+            auto geometryObject = CRTMesh(vertices, trianglesVertices, materialIndex);
             geometryObjects.push_back(geometryObject);
         }
     }
@@ -164,6 +171,29 @@ void CRTScene:: parseSceneFile(const std::string &sceneFileName)
 
             auto light = CRTLight(lightIntensity, lightPosition);
             lights.push_back(light);
+        }
+    }
+
+    // materials
+    const Value &materialsVal = doc.FindMember(crtMaterials)->value;
+    if(!materialsVal.IsNull() && materialsVal.IsArray())
+    {
+        for (auto& materialVal : materialsVal.GetArray())
+        {
+            const Value &typeVal = materialVal.FindMember(crtMaterialType)->value;
+            assert(!typeVal.IsNull() && typeVal.IsString());
+            const char* type = typeVal.GetString();
+
+            const Value &albedoVal = materialVal.FindMember(crtMaterialAlbedo)->value;
+            assert(!albedoVal.IsNull() && albedoVal.IsArray());
+            CRTColor albedo = loadVector(albedoVal.GetArray());
+
+            const Value &smoothVal = materialVal.FindMember(crtMaterialSmooth)->value;
+            assert(!smoothVal.IsNull() && smoothVal.IsBool());
+            bool isSmooth = smoothVal.GetBool();
+
+            auto material = CRTMaterial(type, albedo, isSmooth);
+            materials.push_back(material);
         }
     }
 }

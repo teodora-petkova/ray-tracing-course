@@ -17,6 +17,7 @@ set(HEADERS
     ${PROJECT_SOURCE_DIR}/include/crtlight.h
     ${PROJECT_SOURCE_DIR}/include/crtscene.h
     ${PROJECT_SOURCE_DIR}/include/crtcanvas.h
+    ${PROJECT_SOURCE_DIR}/include/crtmaterial.h
     ${PROJECT_SOURCE_DIR}/include/crtrenderer.h)
 
 set(SOURCES

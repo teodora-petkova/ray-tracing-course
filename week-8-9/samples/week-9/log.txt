@@ -1,0 +1,13 @@
+Rendering scene: D:\Repositories\Git-mine\ray-tracing-course\week-8-9/scenes/week-9/scene0.crtscene.
+Elapsed time for rendering 'scene0' in seconds: 32.761 sec
+Rendering scene: D:\Repositories\Git-mine\ray-tracing-course\week-8-9/scenes/week-9/scene1.crtscene.
+Elapsed time for rendering 'scene1' in seconds: 64.313 sec
+Rendering scene: D:\Repositories\Git-mine\ray-tracing-course\week-8-9/scenes/week-9/scene2.crtscene.
+Elapsed time for rendering 'scene2' in seconds: 75.517 sec
+Rendering scene: D:\Repositories\Git-mine\ray-tracing-course\week-8-9/scenes/week-9/scene3.crtscene.
+Elapsed time for rendering 'scene3' in seconds: 74.405 sec
+Rendering scene: D:\Repositories\Git-mine\ray-tracing-course\week-8-9/scenes/week-9/scene4.crtscene.
+Elapsed time for rendering 'scene4' in seconds: 53.455 sec
+Rendering scene: D:\Repositories\Git-mine\ray-tracing-course\week-8-9/scenes/week-9/scene5.crtscene.
+lapsed time for rendering 'scene5' in seconds: 592.126 sec
+Press any key to continue . . .

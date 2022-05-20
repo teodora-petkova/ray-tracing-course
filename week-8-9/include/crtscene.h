@@ -12,6 +12,7 @@
 #include "crtmesh.h"
 #include "crtcamera.h"
 #include "crtlight.h"
+#include "crtmaterial.h"
 
 class CRTScene 
 {
@@ -23,6 +24,16 @@ public:
     const CRTSettings &getSettings() const { return settings; }
     const std::vector<CRTLight> &getLights() const { return lights; }
 
+    const CRTMaterial getMaterial(int materialIndex) const
+    {
+        CRTMaterial material = CRTMaterial();
+        if(this->materials.size() > 0 && this->materials.size() > materialIndex)
+	    {
+		    material =  this->materials[materialIndex];
+        }
+        return material;
+    }
+
     /// Read the content of the given file and store the data into scene members
     /// @param[in] sceneFileName = the scene file to read
     void parseSceneFile(const std::string &sceneFileName);
@@ -30,6 +41,8 @@ public:
 private:
     std::vector<CRTMesh> geometryObjects;
     std::vector<CRTLight> lights;
+    std::vector<CRTMaterial> materials;
+
     CRTCamera camera;
     CRTSettings settings;
 
@@ -47,8 +60,14 @@ private:
     const char *crtObjects = "objects";
     const char *crtVertices = "vertices";
     const char *crtTriangles = "triangles";
+    const char *crtMaterialIndex = "material_index";
 
     const char *crtLights = "lights";
     const char *crtLightIntensity = "intensity";
     const char *crtLightPosition = "position";
+
+    const char *crtMaterials = "materials";
+    const char *crtMaterialType = "type";
+    const char *crtMaterialAlbedo = "albedo";
+    const char *crtMaterialSmooth = "smooth_shading";
 };

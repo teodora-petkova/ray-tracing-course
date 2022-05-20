@@ -20,15 +20,6 @@
 		]
 	},
 	
-	"lights": [		
-		{
-			"intensity": 1000,
-			"position": [
-				5, 5, 6
-			]
-		}
-	],
-	
 	"materials": [{
 			"type": "diffuse",
 			"albedo": [

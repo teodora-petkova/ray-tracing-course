@@ -8,12 +8,14 @@ class CRTMesh
 {
 public:
     CRTMesh(const std::vector<CRTVector> &vertices,
-            const std::vector<int> &trianglesVertices);
+            const std::vector<int> &trianglesVertices,
+            int materialIndex);
 
-    std::vector<CRTTriangle> getTriangles();
+    int getMaterialIndex() const { return this->materialIndex; }
+
+    std::vector<CRTTriangle> getTriangles() { return this->triangles; }
 
 private:
-    std::vector<CRTVector> vertices;
-    std::vector<int> trianglesVertices;
-    std::vector<CRTColor> trianglesColors;
+    int materialIndex;
+    std::vector<CRTTriangle> triangles;
 };
